@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>Accounts</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico"/>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar-->
+    <div class="border-end bg-white" id="sidebar-wrapper">
+        <div class="sidebar-heading border-bottom bg-light">ShopApp</div>
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/logout">Logout</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/cart">Cart</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/orderList">Your orders</a>
+        </div>
+    </div>
+    <!-- Page content wrapper-->
+    <div id="page-content-wrapper">
+        <!-- Top navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-primary" id="sidebarToggle">Hide Menu</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                </button>
+
+            </div>
+        </nav>
+        <!-- Page content-->
+
+
+        <div class="container-fluid">
+
+
+            <table class="table">
+                <thead class="thead-dark">
+
+                <tr>
+
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Unit</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Quantity</th>
+                </tr>
+                </thead>
+                <th:block th:each="prod : ${products}">
+                    <tbody>
+
+
+                    <tr>
+                        <th scope="row"><span th:text="${prod.getId()}"></span>
+
+                        </th>
+
+                        <td><a th:href="@{'/product_details?name=' + ${prod.getName()}}"><span
+                                th:text="${prod.getName()}"></span></a>
+                        </td>
+
+                        <td><span th:text="${prod.getPrice()}"></span></td>
+                        <td><span th:text="${prod.getUnit()}"></span></td>
+                        <td><span th:text="${prod.getCategory().name()}"></span></td>
+
+                        <td>
+
+                            <form method="post" th:action="@{'/addToCart?id=' + ${prod.getId()}}" th:object="${item}">
+                                <input type="number" step="1" min="0" style="width: 50px" id="quantity"
+                                       name="quantity"/>
+                                <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                        style="width: 80px; height: 30px; font-size: xx-small">Add to Cart
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
+<script src="js/scripts.js"></script>
+</body>
+</html>

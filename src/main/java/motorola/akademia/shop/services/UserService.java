@@ -54,6 +54,16 @@ public class UserService {
         return new User();
     }
 
+    public User findUserByUsernameAndPassword (String username, String password){
+        User user = new User();
+        for (User u : users) {
+            if(u.getUsername().equals(username) && u.getPassword().equals(password)){
+                user = u;
+            }
+        }
+        return user;
+    }
+
 
 
 

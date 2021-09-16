@@ -18,7 +18,8 @@
         <div class="sidebar-heading border-bottom bg-light">ShopApp</div>
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/logout">Logout</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/products">List of products</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/products">List of
+                products</a>
         </div>
     </div>
     <!-- Page content wrapper-->
@@ -52,6 +53,8 @@
                     <th scope="col">Category</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Value</th>
+                    <th scope="col">@</th>
+                    <th scope="col">@</th>
 
                 </tr>
                 </thead>
@@ -72,6 +75,21 @@
 
                         <td><span th:text="${item.key.quantity}"></span></td>
                         <td><span th:text="${item.value}"></span></td>
+
+                        <td>
+                            <form method="post" th:action="@{'/modify?id=' + ${item.key.productId}}">
+                                <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                        style="width: 150px; height: 30px; font-size: xx-small">MODIFY QUANTITY
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" th:action="@{'/delete?id=' + ${item.key.productId}}">
+                                <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                        style="width: 80px; height: 30px; font-size: xx-small">DELETE
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 </th:block>
                 </tbody>
@@ -87,7 +105,6 @@
                     style="width: 80px; height: 30px; font-size: xx-small">ORDER
             </button>
         </form>
-
 
 
     </div>

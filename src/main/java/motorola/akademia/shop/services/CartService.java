@@ -29,8 +29,15 @@ public class CartService {
         return cart;
     }
 
-    public Cart deleteProductFromCart(Cart.Item item){
-        cart.getItemMap().remove(item);
+    public Cart deleteProductFromCart(int id){
+
+        for (Cart.Item item : cart.getItemMap().keySet()) {
+            if (item.getProductId() == id){
+                cart.getItemMap().remove(item);
+                break;
+            }
+        }
+
         return cart;
     }
 

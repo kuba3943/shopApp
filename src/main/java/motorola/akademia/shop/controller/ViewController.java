@@ -37,6 +37,7 @@ public class ViewController {
     public String logout (Model model){
 
         userService.logout();
+        cartService.clearCart();
         model.addAttribute("user", userService.emptyUser());
         return "login";
     }
@@ -44,9 +45,14 @@ public class ViewController {
     @PostMapping("/login")
     public String productList (@ModelAttribute User user, Model model){
 
-       if (userService.login(user)){
+        User user1 = userService.findUserByUsernameAndPassword(user.getUsername(), user.getPassword());
+
+       if (userService.login(user) && user1.getUserRole()==UserRole.USER){
            return "redirect:products";
-       } else {
+       } else if (userService.login(user) && user1.getUserRole()==UserRole.ADMIN){
+           model.addAttribute("products", productListService.all());
+           return "adminProducts";
+        }else {
            model.addAttribute("user", userService.emptyUser());
            return "loginerror";
        }
@@ -136,10 +142,19 @@ public class ViewController {
     @GetMapping("/orderList")
     public String orderList(Model model) {
 
-        model.addAttribute("orders", orderListService.getOrdersByUser(userService.getLoggedUser()));
+        User user1 = userService.findUserByUsernameAndPassword(userService.getLoggedUser().getUsername(), userService.getLoggedUser().getPassword());
 
 
-        return "orders";
+        if (userService.login(user1) && user1.getUserRole()==UserRole.USER){
+            model.addAttribute("orders", orderListService.getOrdersByUser(userService.getLoggedUser()));
+            return "orders";
+        } else if (userService.login(user1) && user1.getUserRole()==UserRole.ADMIN){
+            model.addAttribute("orders", orderListService.all());
+            return "ordersA";
+        }else {
+            return "login";
+        }
+
     }
 
     @PostMapping("/orderDetails")
@@ -151,5 +166,76 @@ public class ViewController {
 
         return "orderDetails";
     }
+
+    @PostMapping("/modify")
+    public String modifyCart(Model model, @RequestParam(value = "id") int id) {
+
+        Cart.Item itemToModify=null;
+
+        for (Cart.Item item : cartService.all().keySet()) {
+            if (item.getProductId()==id){
+                itemToModify=item;
+            }
+        }
+
+        cartService.deleteProductFromCart(id);
+
+        model.addAttribute("itemToModify", itemToModify);
+        model.addAttribute("products", productListService.all());
+        model.addAttribute("item", new Cart.Item());
+
+
+        return "modifyCart";
+    }
+
+    @PostMapping("/delete")
+    public String deleteProductFromCart(Model model, @RequestParam(value = "id") int id) {
+
+        cartService.deleteProductFromCart(id);
+        return "redirect:cart";
+    }
+
+    @PostMapping("/modifyProduct")
+    public String modifyProduct(Model model, @RequestParam(value = "id") int id) {
+
+      model.addAttribute("product", productListService.productById(id));
+      model.addAttribute("newProduct", new Product());
+
+        return "modifyProduct";
+    }
+
+    @PostMapping("/updateProduct")
+    public String updateProduct(Model model, @RequestParam(value = "id") int id, @ModelAttribute Product newProduct) {
+
+        Product productToModify = productListService.productById(id);
+
+        if (newProduct.getPrice()!= null){
+        productToModify.setPrice(newProduct.getPrice());}
+
+        if (newProduct.getDetails()!=null){
+        productToModify.setDetails(newProduct.getDetails());}
+
+        model.addAttribute("products", productListService.all());
+        return "adminProducts";
+    }
+
+    @GetMapping("/adminProducts")
+    public String showListAdmin(Model model) {
+
+        model.addAttribute("products", productListService.all());
+
+        return "adminProducts";
+    }
+
+    @PostMapping("/orderDetailsA")
+    public String orderDetailsA(Model model, @RequestParam(value = "id") int id) {
+
+        model.addAttribute("cart", orderListService.getOrdersById(id).getCart());
+        model.addAttribute("products", productListService.all());
+        model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
+
+        return "orderDetailsA";
+    }
+
 
 }

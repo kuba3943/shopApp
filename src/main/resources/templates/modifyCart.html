@@ -18,8 +18,8 @@
         <div class="sidebar-heading border-bottom bg-light">ShopApp</div>
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/logout">Logout</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/products">List of products</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/orderList">Your orders</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/products">List of
+                products</a>
         </div>
     </div>
     <!-- Page content wrapper-->
@@ -52,37 +52,45 @@
                     <th scope="col">Unit</th>
                     <th scope="col">Category</th>
                     <th scope="col">Quantity</th>
-                    <th scope="col">Value</th>
+                    <th scope="col">New Quantity</th>
 
                 </tr>
                 </thead>
-                <th:block th:each="item : ${cart.getItemMap()}">
+
                     <tbody>
 
 
                     <tr>
-                        <th scope="row"><span th:text="${item.key.productId}"></span>
+                        <th scope="row"><span th:text="${itemToModify.productId}"></span>
 
                         </th>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).name}"></span></td>
+                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).name}"></span></td>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).price}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getUnit()}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getCategory().name()}"></span></td>
+                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).price}"></span></td>
+                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).getUnit()}"></span></td>
+                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).getCategory().name()}"></span></td>
 
-                        <td><span th:text="${item.key.quantity}"></span></td>
-                        <td><span th:text="${item.value}"></span></td>
+                        <td><span th:text="${itemToModify.getQuantity()}"></span></td>
+
+
+                        <td>
+
+                            <form method="post" th:action="@{'/addToCart?id=' + ${itemToModify.getProductId()}}" th:object="${item}">
+                                <input type="number" step="1" min="0" style="width: 50px" id="quantity"
+                                       name="quantity"/>
+                                <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                        style="width: 120px; height: 30px; font-size: xx-small">Modify Quantity
+                                </button>
+                            </form>
+                        </td>
+
                     </tr>
-                </th:block>
+
                 </tbody>
             </table>
 
-            <p> Total price or cart: <span th:text="${totalPrice}"></span></p>
         </div>
-
-
-
 
 
 

@@ -7,6 +7,7 @@ import motorola.akademia.shop.repository.Product;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.Bidi;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ public class CartService {
     private final ProductListService productListService;
 
     private final Cart cart = new Cart(new HashMap<>());
+
+
 
 
     public Cart addProductToCart(int productId, int quantity){
@@ -61,6 +64,25 @@ public class CartService {
 
     public BigDecimal getTotalPriceOfCart(){
        return cart.getItemMap().values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal specialOffer20(double reduction){
+
+        BigDecimal totalPrice20 = new BigDecimal(BigInteger.valueOf(0));
+
+        for (Map.Entry<Cart.Item, BigDecimal> entry : cart.getItemMap().entrySet()) {
+            if (entry.getKey().getQuantity()>=5){
+                totalPrice20=totalPrice20.add(entry.getValue().multiply(BigDecimal.valueOf(reduction)));
+            }
+        }
+        return totalPrice20;
+    }
+
+
+
+    public void updateTotalPriceWhenChangeQuantity(Cart cart){
+        cart.getItemMap().entrySet().stream().forEach(s ->
+            s.setValue(productListService.productById(s.getKey().getProductId()).getPrice().multiply((BigDecimal.valueOf(s.getKey().getQuantity())))));
     }
 
 

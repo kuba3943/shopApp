@@ -19,6 +19,7 @@
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/logout">Logout</a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/orderList">All orders</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/addNewProduct">Add new product</a>
         </div>
     </div>
     <!-- Page content wrapper-->
@@ -51,6 +52,7 @@
                     <th scope="col">Unit</th>
                     <th scope="col">Category</th>
                     <th scope="col">@</th>
+                    <th scope="col">@</th>
                 </tr>
                 </thead>
                 <th:block th:each="prod : ${products}">
@@ -78,6 +80,15 @@
                                 </button>
                             </form>
                         </td>
+
+                        <td>
+                            <form method="post" th:action="@{'/deleteProduct?id=' + ${prod.getId()}}" >
+                                <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                        style="width: 80px; height: 30px; font-size: xx-small">DELETE
+                                </button>
+                            </form>
+                        </td>
+
                     </tr>
                 </th:block>
                 </tbody>

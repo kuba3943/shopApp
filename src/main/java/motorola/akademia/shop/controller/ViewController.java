@@ -5,13 +5,9 @@ import motorola.akademia.shop.repository.*;
 import motorola.akademia.shop.services.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.math.RoundingMode;
 
 
 @Controller
@@ -91,6 +87,9 @@ public class ViewController {
         model.addAttribute("products", productListService.all());
         model.addAttribute("item", new Cart.Item());
 
+        model.addAttribute("categories", Category.values());
+        model.addAttribute("catName", new Name());
+
         return "list";
     }
 
@@ -120,8 +119,9 @@ public class ViewController {
     public String showCart(Model model) {
 
         model.addAttribute("items", cartService.all());
-        model.addAttribute("totalPrice", cartService.getTotalPriceOfCart());
-        model.addAttribute("products", productListService.all());
+        model.addAttribute("totalPrice", cartService.getTotalPriceOfCart().setScale(2, RoundingMode.CEILING));
+        model.addAttribute("totalPrice20", cartService.specialOffer20(0.8).setScale(2, RoundingMode.CEILING));
+        model.addAttribute("products", productListService.allToCart());
 
 
         return "cart";
@@ -130,7 +130,10 @@ public class ViewController {
     @PostMapping("/orders")
     public String orders(Model model) {
 
+        cartService.specialOffer20(0.8);
         Cart cart = new Cart(cartService.all());
+
+
         User user = userService.getLoggedUser();
         orderListService.addOrder(cart,user);
 
@@ -161,7 +164,8 @@ public class ViewController {
     public String orderDetails(Model model, @RequestParam(value = "id") int id) {
 
         model.addAttribute("cart", orderListService.getOrdersById(id).getCart());
-        model.addAttribute("products", productListService.all());
+        model.addAttribute("products", productListService.allToCart());
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
         model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
 
         return "orderDetails";
@@ -181,7 +185,7 @@ public class ViewController {
         cartService.deleteProductFromCart(id);
 
         model.addAttribute("itemToModify", itemToModify);
-        model.addAttribute("products", productListService.all());
+        model.addAttribute("products", productListService.allToCart());
         model.addAttribute("item", new Cart.Item());
 
 
@@ -230,12 +234,102 @@ public class ViewController {
     @PostMapping("/orderDetailsA")
     public String orderDetailsA(Model model, @RequestParam(value = "id") int id) {
 
+        model.addAttribute("order", orderListService.getOrdersById(id));
+        model.addAttribute("item", new Cart.Item());
         model.addAttribute("cart", orderListService.getOrdersById(id).getCart());
-        model.addAttribute("products", productListService.all());
-        model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
+        model.addAttribute("products", productListService.allToCart());
 
-        return "orderDetailsA";
+        model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
+
+        return "orderDetailsAd";
     }
+
+
+    @GetMapping("/orderDetailsA")
+    public String getOrderDetailsA(Model model, @RequestParam(value = "id") int id) {
+
+        model.addAttribute("order", orderListService.getOrdersById(id));
+        model.addAttribute("item", new Cart.Item());
+        model.addAttribute("cart", orderListService.getOrdersById(id).getCart());
+        model.addAttribute("products", productListService.allToCart());
+
+        model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
+
+        return "orderDetailsAd";
+    }
+
+    @PostMapping("/updateItem/prodid/{prodId}/orderid/{orderId}")
+    public String updateItem(Model model, @ModelAttribute Cart.Item item, @PathVariable int prodId, @PathVariable int orderId) {
+
+        orderListService.getOrdersById(orderId).getCart().getItemMap().keySet().forEach(i ->{
+            if (i.getProductId()==prodId){
+                i.setQuantity(item.getQuantity());
+            }
+        });
+
+        cartService.updateTotalPriceWhenChangeQuantity(orderListService.getOrdersById(orderId).getCart());
+
+        model.addAttribute("order", orderListService.getOrdersById(orderId));
+        model.addAttribute("item", new Cart.Item());
+        model.addAttribute("cart", orderListService.getOrdersById(orderId).getCart());
+        model.addAttribute("products", productListService.allToCart());
+        model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(orderId)));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(orderId,0.8));
+        return "redirect:http://localhost:8080/orderDetailsA?id=" +orderId ;
+    }
+
+    @PostMapping("/sortByCategory")
+    public String sortByCategory(Model model, @ModelAttribute Name catName) {
+
+
+        if(catName.getName().equals("ALL")){
+            model.addAttribute("products", productListService.all());
+        } else{
+            model.addAttribute("products", productListService.getProductsByCategory(catName.getName()));
+        }
+
+        model.addAttribute("item", new Cart.Item());
+
+        model.addAttribute("categories", Category.values());
+        model.addAttribute("catName", new Name());
+
+        return "list";
+    }
+
+    @GetMapping("/addNewProduct")
+    public String addNewProduct(Model model) {
+
+        model.addAttribute("product", new Product());
+        model.addAttribute("categories", Category.values());
+
+        return "addProduct";
+    }
+
+    @PostMapping("/addProduct")
+    public String addProduct(Model model, @ModelAttribute Product product ) {
+
+        product.setId(productListService.all().stream().mapToInt(a -> a.getId()).max().getAsInt()+1);
+
+        productListService.addProduct(product);
+
+        model.addAttribute("products", productListService.all());
+
+        return "adminProducts";
+    }
+
+    @PostMapping("/deleteProduct")
+    public String deleteProduct(Model model, @RequestParam(value = "id") int id) {
+
+       productListService.deleteProductById(id);
+        model.addAttribute("products", productListService.all());
+        return "adminProducts";
+    }
+
+
+
+
 
 
 }

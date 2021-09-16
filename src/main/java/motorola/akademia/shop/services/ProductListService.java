@@ -10,11 +10,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProductListService {
 
-    List<Product> products = Arrays.asList(
+    List<Product> products = new ArrayList<Product>(Arrays.asList(
             new Product(1, "Apple", new BigDecimal("2.50"), "kg", Category.FRUITS, "Jonagold"),
             new Product(2, "Lemon", new BigDecimal("8.10"), "kg", Category.FRUITS, "from Mexico"),
             new Product(3, "Banana", new BigDecimal("4.70"), "kg", Category.FRUITS, "from China"),
@@ -35,10 +36,14 @@ public class ProductListService {
             new Product(18, "Medium Bread", new BigDecimal("3.10"), "szt", Category.BREAD, "Wheat"),
             new Product(19, "Small Bread", new BigDecimal("3.80"), "szt", Category.BREAD, "Whole grain"),
             new Product(20, "Roll", new BigDecimal("0.40"), "szt", Category.BREAD, "Kajzerka")
-    );
+    ));
+
+    public List<Product> allToCart() {
+        return products;
+    }
 
     public List<Product> all() {
-        return products;
+        return products.stream().filter(a -> !a.getName().substring(0,3).equals("DEL")).collect(Collectors.toList());
     }
 
     public Product byName(String name) {
@@ -71,6 +76,19 @@ public class ProductListService {
         return categoryList;
     }
 
+    public void addProduct (Product product){
+        products.add(product);
+    }
+
+    public void deleteProductById (int id){
+
+        for (Product p : products) {
+            if(p.getId()==id){
+                String oldName = p.getName();
+                p.setName("DELETED_" + oldName);
+            }
+        }
+    }
 
 
 

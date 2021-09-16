@@ -59,7 +59,7 @@
                 <th:block th:each="item : ${cart.getItemMap()}">
                     <tbody>
 
-
+                    <form  method="post" th:action="@{'/updateItem/prodid/'+${item.key.productId} + '/orderid/' + ${order.getId()}}" th:object="${item}">
                     <tr>
                         <th scope="row"><span th:text="${item.key.productId}"></span>
 
@@ -71,14 +71,26 @@
                         <td><span th:text="${products.get(-1+item.key.productId).getUnit()}"></span></td>
                         <td><span th:text="${products.get(-1+item.key.productId).getCategory().name()}"></span></td>
 
-                        <td><span th:text="${item.key.quantity}"></span></td>
+                        <td><span th:text="${item.key.quantity}"></span>
+                            <input type="number" step="1" min="0" style="width: 50px" id="quantity"
+                                   name="quantity"/>
+                            <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                    style="width: 120px; height: 30px; font-size: xx-small">Modify Quantity
+                            </button>
+                        </td>
+
+
+
+
                         <td><span th:text="${item.value}"></span></td>
                     </tr>
+                    </form>
                 </th:block>
                 </tbody>
             </table>
 
-            <p> Total price or cart: <span th:text="${totalPrice}"></span></p>
+            <p> Total price of order: <span th:text="${totalPrice}"></span></p>
+            <p> SPECIAL OFFER - Total price of order : <span th:text="${totalPrice20}"></span></p>
         </div>
 
 

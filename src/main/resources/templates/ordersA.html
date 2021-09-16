@@ -47,6 +47,7 @@
                 <tr>
 
                     <th scope="col">#</th>
+                    <th scope="col">User</th>
                     <th scope="col">Show Details</th>
 
 
@@ -60,6 +61,10 @@
                         <th scope="row"><span th:text="${order.id}"></span>
 
                         </th>
+
+                        <td>
+                            <span th:text="${order.getUser().username}"></span>
+                        </td>
 
                         <td>
                             <form method="post" th:action="@{'/orderDetailsA?id=' +${order.getId()}}">

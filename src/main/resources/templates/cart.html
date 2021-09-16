@@ -74,7 +74,7 @@
                         <td><span th:text="${products.get(-1+item.key.productId).getCategory().name()}"></span></td>
 
                         <td><span th:text="${item.key.quantity}"></span></td>
-                        <td><span th:text="${item.value}"></span></td>
+                        <td><span th:text="${item.value.setScale(2)}"></span></td>
 
                         <td>
                             <form method="post" th:action="@{'/modify?id=' + ${item.key.productId}}">
@@ -96,6 +96,7 @@
             </table>
 
             <p> Total price or cart: <span th:text="${totalPrice}"></span></p>
+            <p> SPECIAL OFFER - Total price or cart : <span th:text="${totalPrice20}"></span></p>
         </div>
 
 

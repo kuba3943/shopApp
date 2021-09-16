@@ -7,8 +7,11 @@ import org.springframework.stereotype.Repository;
 
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class OrderListService {
@@ -51,6 +54,18 @@ public class OrderListService {
 
     public BigDecimal getTotalPriceFromOrder(Order order){
             return order.getCart().getItemMap().values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal specialOffer20(int id, double reduction){
+
+        Order order = getOrdersById(id);
+        BigDecimal totalPrice20 = new BigDecimal(BigInteger.valueOf(0));
+        for (Map.Entry<Cart.Item, BigDecimal> entry : order.getCart().getItemMap().entrySet()) {
+            if (entry.getKey().getQuantity()>=5){
+                totalPrice20=totalPrice20.add(entry.getValue().multiply(BigDecimal.valueOf(reduction)));
+               }
+        }
+        return totalPrice20;
     }
 
 }

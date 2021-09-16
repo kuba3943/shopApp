@@ -20,6 +20,7 @@
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/logout">Logout</a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/cart">Cart</a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/orderList">Your orders</a>
+            <p class="list-group-item list-group-item-action list-group-item-light p-3">!!! SPECIAL OFFER - IF YOU BUY 5 OR MORE PIECES OF ONE PRODUCT, YOU WILL GET A 20% DISCOUNT!!!</p>
         </div>
     </div>
     <!-- Page content wrapper-->
@@ -50,7 +51,30 @@
                     <th scope="col">Name</th>
                     <th scope="col">Price</th>
                     <th scope="col">Unit</th>
-                    <th scope="col">Category</th>
+                    <th scope="col">Category
+
+                        <form method="post" th:action="@{'/sortByCategory'}" th:object="${catName}">
+                        <div class="form-group">
+                            <select class="form-control selectpicker"  id="name" name="name">
+                                <option value="ALL">ALL</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.name()}"
+                                        th:text="${cat.name()}">
+                                </option>
+                            </select>
+                            <button class="btn btn-lg btn-outline-success btn-block" type="submit"
+                                    style="width: 80px; height: 30px; font-size: xx-small">FILTER
+                            </button>
+                        </div>
+                        </form>
+
+
+
+
+
+
+
+                    </th>
                     <th scope="col">Quantity</th>
                 </tr>
                 </thead>

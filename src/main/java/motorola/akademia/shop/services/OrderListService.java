@@ -30,10 +30,10 @@ public class OrderListService {
         return orders;
     }
 
-    public List<Order> getOrdersByUser (User user){
+    public List<Order> getOrdersByUser (String username){
         List<Order> ordersByUser = new ArrayList<>();
         for (Order o : orders) {
-            if (o.getUser().getUsername().equals(user.getUsername())){
+            if (o.getUser().getUsername().equals(username)){
                 ordersByUser.add(o);
             }
 

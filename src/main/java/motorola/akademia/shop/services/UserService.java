@@ -46,8 +46,9 @@ public class UserService {
         loggedUser = new User();
     }
 
-    public void addNewUser(User user){
+    public User addNewUser(User user){
         users.add(user);
+        return user;
     }
 
     public User emptyUser(){

@@ -149,7 +149,7 @@ public class ViewController {
 
 
         if (userService.login(user1) && user1.getUserRole()==UserRole.USER){
-            model.addAttribute("orders", orderListService.getOrdersByUser(userService.getLoggedUser()));
+            model.addAttribute("orders", orderListService.getOrdersByUser(userService.getLoggedUser().getUsername()));
             return "orders";
         } else if (userService.login(user1) && user1.getUserRole()==UserRole.ADMIN){
             model.addAttribute("orders", orderListService.all());

@@ -76,18 +76,22 @@ public class ProductListService {
         return categoryList;
     }
 
-    public void addProduct (Product product){
+    public Product addProduct (Product product){
         products.add(product);
+        return product;
     }
 
-    public void deleteProductById (int id){
+    public Product deleteProductById (int id){
 
+        Product detetedProduct = new Product();
         for (Product p : products) {
             if(p.getId()==id){
                 String oldName = p.getName();
                 p.setName("DELETED_" + oldName);
+                detetedProduct=p;
             }
         }
+        return detetedProduct;
     }
 
 

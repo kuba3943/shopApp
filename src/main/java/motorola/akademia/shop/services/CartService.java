@@ -81,7 +81,6 @@ public class CartService {
     }
 
 
-
     public void updateTotalPriceWhenChangeQuantity(Cart cart){
         cart.getItemMap().entrySet().stream().forEach(s ->
             s.setValue(productListService.productById(s.getKey().getProductId()).getPrice().multiply((BigDecimal.valueOf(s.getKey().getQuantity())))));

@@ -63,7 +63,9 @@ public class OrderListService {
         for (Map.Entry<Cart.Item, BigDecimal> entry : order.getCart().getItemMap().entrySet()) {
             if (entry.getKey().getQuantity()>=5){
                 totalPrice20=totalPrice20.add(entry.getValue().multiply(BigDecimal.valueOf(reduction)));
-               }
+               }else {
+                totalPrice20=totalPrice20.add(entry.getValue());
+            }
         }
         return totalPrice20;
     }

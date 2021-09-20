@@ -20,4 +20,16 @@ public class Product {
     private Category category;
     private String details;
 
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", unit='" + unit + '\'' +
+                ", category=" + category +
+                ", details='" + details + '\'' +
+                '}';
+    }
 }

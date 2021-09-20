@@ -16,10 +16,10 @@ public class CartApiController {
 
     private final CartService cartService;
 
-    @PostMapping("/addItemToCart")
-    public ResponseEntity<Cart> addItemToCart(@RequestParam int productId, @RequestParam int quantity){
-        return ResponseEntity.ok(cartService.addProductToCart(productId,quantity));
-    }
+//    @PostMapping("/addItemToCart")
+//    public ResponseEntity<Cart> addItemToCart(@RequestParam int productId, @RequestParam int quantity){
+//        return ResponseEntity.ok(cartService.addProductToCart(productId,quantity));
+//    }
 
     @GetMapping ("/clearCart")
     public ResponseEntity<Cart> clearCart(){

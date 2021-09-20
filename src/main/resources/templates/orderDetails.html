@@ -61,15 +61,15 @@
 
 
                     <tr>
-                        <th scope="row"><span th:text="${item.key.productId}"></span>
+                        <th scope="row"><span th:text="${item.key.getProduct().getId()}"></span>
 
                         </th>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).name}"></span></td>
+                        <td><span th:text="${item.key.getProduct().name}"></span></td>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).price}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getUnit()}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getCategory().name()}"></span></td>
+                        <td><span th:text="${item.key.getProduct().price}"></span></td>
+                        <td><span th:text="${item.key.getProduct().getUnit()}"></span></td>
+                        <td><span th:text="${item.key.getProduct().getCategory().name()}"></span></td>
 
                         <td><span th:text="${item.key.quantity}"></span></td>
                         <td><span th:text="${item.value}"></span></td>

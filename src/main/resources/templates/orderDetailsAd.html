@@ -59,17 +59,17 @@
                 <th:block th:each="item : ${cart.getItemMap()}">
                     <tbody>
 
-                    <form  method="post" th:action="@{'/updateItem/prodid/'+${item.key.productId} + '/orderid/' + ${order.getId()}}" th:object="${item}">
+                    <form  method="post" th:action="@{'/updateItem/prodid/'+${item.key.product.getId()} + '/orderid/' + ${order.getId()}}" th:object="${item}">
                     <tr>
-                        <th scope="row"><span th:text="${item.key.productId}"></span>
+                        <th scope="row"><span th:text="${item.key.product.getId()}"></span>
 
                         </th>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).name}"></span></td>
+                        <td><span th:text="${item.key.product.name}"></span></td>
 
-                        <td><span th:text="${products.get(-1+item.key.productId).price}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getUnit()}"></span></td>
-                        <td><span th:text="${products.get(-1+item.key.productId).getCategory().name()}"></span></td>
+                        <td><span th:text="${item.key.product.price}"></span></td>
+                        <td><span th:text="${item.key.product.getUnit()}"></span></td>
+                        <td><span th:text="${item.key.product.getCategory().name()}"></span></td>
 
                         <td><span th:text="${item.key.quantity}"></span>
                             <input type="number" step="1" min="0" style="width: 50px" id="quantity"

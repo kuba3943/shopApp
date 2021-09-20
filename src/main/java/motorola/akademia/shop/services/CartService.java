@@ -25,9 +25,9 @@ public class CartService {
     private final Cart cart = new Cart(new HashMap<>());
 
 
-    public Cart addProductToCart(int productId, int quantity){
-        Cart.Item item = new Cart.Item(productId,quantity);
-        BigDecimal totalItemPrice = new BigDecimal(String.valueOf(productListService.productById(productId).getPrice().multiply(BigDecimal.valueOf(quantity))));
+    public Cart addProductToCart(Product product, int quantity){
+        Cart.Item item = new Cart.Item(product,quantity);
+        BigDecimal totalItemPrice = new BigDecimal(String.valueOf(productListService.productById(product.getId()).getPrice().multiply(BigDecimal.valueOf(quantity))));
         cart.getItemMap().put(item,totalItemPrice);
         return cart;
     }
@@ -35,7 +35,7 @@ public class CartService {
     public Cart deleteProductFromCart(int id){
 
         for (Cart.Item item : cart.getItemMap().keySet()) {
-            if (item.getProductId() == id){
+            if (item.getProduct().getId() == id){
                 cart.getItemMap().remove(item);
                 break;
             }
@@ -47,7 +47,7 @@ public class CartService {
     public Cart changeQuantityOfProduct (int productId, int newQuantity){
 
         cart.getItemMap().forEach((k,v) -> {
-            if (k.getProductId()==productId){
+            if (k.getProduct().getId()==productId){
                 k.setQuantity(newQuantity);
             } });
         return cart;
@@ -83,7 +83,7 @@ public class CartService {
 
     public void updateTotalPriceWhenChangeQuantity(Cart cart){
         cart.getItemMap().entrySet().stream().forEach(s ->
-            s.setValue(productListService.productById(s.getKey().getProductId()).getPrice().multiply((BigDecimal.valueOf(s.getKey().getQuantity())))));
+            s.setValue(productListService.productById(s.getKey().getProduct().getId()).getPrice().multiply((BigDecimal.valueOf(s.getKey().getQuantity())))));
     }
 
 

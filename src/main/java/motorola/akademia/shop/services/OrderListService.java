@@ -70,4 +70,16 @@ public class OrderListService {
         return totalPrice20;
     }
 
+
+    public List<Order> getAllOrdersWithProduct (int id){
+        List<Order> ordersWithProduct = new ArrayList<>();
+
+        for (Order o : this.all()) {
+            if (o.getCart().getItemMap().keySet().stream().anyMatch(a -> a.getProduct().getId()==id)){
+                ordersWithProduct.add(o);
+            }
+        }
+        return ordersWithProduct;
+    }
+
 }

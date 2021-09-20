@@ -16,7 +16,6 @@ import java.util.Map;
 @Getter
 @Setter
 @Component
-@SessionScope
 public class Cart {
 
 
@@ -28,20 +27,20 @@ public class Cart {
     @NoArgsConstructor
     public static class Item{
 
-        private int productId;
+        private Product product;
         private int quantity;
 
-        public Item(int productId, int quantity) {
-            this.productId = productId;
+        public Item(Product product, int quantity) {
+            this.product = product;
             this.quantity = quantity;
         }
 
-        public int getProductId() {
-            return productId;
+        public Product getProduct() {
+            return product;
         }
 
-        public void setProductId(int productId) {
-            this.productId = productId;
+        public void setProduct(Product product) {
+            this.product = product;
         }
 
         public int getQuantity() {

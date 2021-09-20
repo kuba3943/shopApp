@@ -61,22 +61,22 @@
 
 
                     <tr>
-                        <th scope="row"><span th:text="${itemToModify.productId}"></span>
+                        <th scope="row"><span th:text="${itemToModify.product.id}"></span>
 
                         </th>
 
-                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).name}"></span></td>
+                        <td><span th:text="${itemToModify.getProduct().name}"></span></td>
 
-                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).price}"></span></td>
-                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).getUnit()}"></span></td>
-                        <td><span th:text="${products.get(-1+itemToModify.getProductId()).getCategory().name()}"></span></td>
+                        <td><span th:text="${itemToModify.getProduct().price}"></span></td>
+                        <td><span th:text="${itemToModify.getProduct().getUnit()}"></span></td>
+                        <td><span th:text="${itemToModify.getProduct().getCategory().name()}"></span></td>
 
                         <td><span th:text="${itemToModify.getQuantity()}"></span></td>
 
 
                         <td>
 
-                            <form method="post" th:action="@{'/addToCart?id=' + ${itemToModify.getProductId()}}" th:object="${item}">
+                            <form method="post" th:action="@{'/addToCart?id=' + ${itemToModify.getProduct().getId()}}" th:object="${item}">
                                 <input type="number" step="1" min="0" style="width: 50px" id="quantity"
                                        name="quantity"/>
                                 <button class="btn btn-lg btn-outline-success btn-block" type="submit"

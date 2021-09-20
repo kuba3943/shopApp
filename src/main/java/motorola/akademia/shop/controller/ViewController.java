@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.RoundingMode;
+import java.util.List;
 
 
 @Controller
@@ -107,7 +108,7 @@ public class ViewController {
     @PostMapping("/addToCart")
     public String addToCart(Model model, @ModelAttribute Cart.Item item, @RequestParam(value = "id") int id) {
 
-        cartService.addProductToCart(id, item.getQuantity());
+        cartService.addProductToCart(productListService.productById(id), item.getQuantity());
 
         model.addAttribute("products", productListService.all());
         model.addAttribute("item", new Cart.Item());
@@ -177,7 +178,7 @@ public class ViewController {
         Cart.Item itemToModify=null;
 
         for (Cart.Item item : cartService.all().keySet()) {
-            if (item.getProductId()==id){
+            if (item.getProduct().getId()==id){
                 itemToModify=item;
             }
         }
@@ -215,6 +216,12 @@ public class ViewController {
 
         if (newProduct.getPrice()!= null){
         productToModify.setPrice(newProduct.getPrice());}
+
+        List<Order> ordersToUpdate = orderListService.getAllOrdersWithProduct(id);
+
+        for (Order o : ordersToUpdate) {
+            cartService.updateTotalPriceWhenChangeQuantity(o.getCart());
+        }
 
         if (newProduct.getDetails()!=null){
         productToModify.setDetails(newProduct.getDetails());}
@@ -264,7 +271,7 @@ public class ViewController {
     public String updateItem(Model model, @ModelAttribute Cart.Item item, @PathVariable int prodId, @PathVariable int orderId) {
 
         orderListService.getOrdersById(orderId).getCart().getItemMap().keySet().forEach(i ->{
-            if (i.getProductId()==prodId){
+            if (i.getProduct().getId()==prodId){
                 i.setQuantity(item.getQuantity());
             }
         });

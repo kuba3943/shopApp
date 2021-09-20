@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import motorola.akademia.shop.repository.Cart;
 import motorola.akademia.shop.repository.Product;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.context.annotation.SessionScope;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,13 +17,12 @@ import java.util.Map;
 
 @Repository
 @AllArgsConstructor
+@SessionScope
 public class CartService {
 
     private final ProductListService productListService;
 
     private final Cart cart = new Cart(new HashMap<>());
-
-
 
 
     public Cart addProductToCart(int productId, int quantity){

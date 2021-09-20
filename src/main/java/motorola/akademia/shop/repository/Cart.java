@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Component
+@SessionScope
 public class Cart {
 
 

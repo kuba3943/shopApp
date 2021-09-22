@@ -63,28 +63,28 @@
 
 
                     <tr>
-                        <th scope="row"><span th:text="${item.key.product.id}"></span>
+                        <th scope="row"><span th:text="${item.getProduct().getId()}"></span>
 
                         </th>
 
-                        <td><span th:text="${item.key.product.name}"></span></td>
+                        <td><span th:text="${item.getProduct().getName()}"></span></td>
 
-                        <td><span th:text="${item.key.product.price}"></span></td>
-                        <td><span th:text="${item.key.product.getUnit()}"></span></td>
-                        <td><span th:text="${item.key.product.getCategory().name()}"></span></td>
+                        <td><span th:text="${item.getProduct().getPrice()}"></span></td>
+                        <td><span th:text="${item.getProduct().getUnit()}"></span></td>
+                        <td><span th:text="${item.getProduct().getCategory().name()}"></span></td>
 
-                        <td><span th:text="${item.key.quantity}"></span></td>
-                        <td><span th:text="${item.value.setScale(2)}"></span></td>
+                        <td><span th:text="${item.getQuantity()}"></span></td>
+                        <td><span th:text="${item.getPrice().setScale(2)}"></span></td>
 
                         <td>
-                            <form method="post" th:action="@{'/modify?id=' + ${item.key.getProduct().getId()}}">
+                            <form method="post" th:action="@{'/modify?id=' + ${item.getProduct().getId()}}">
                                 <button class="btn btn-lg btn-outline-success btn-block" type="submit"
                                         style="width: 150px; height: 30px; font-size: xx-small">MODIFY QUANTITY
                                 </button>
                             </form>
                         </td>
                         <td>
-                            <form method="post" th:action="@{'/delete?id=' + ${item.key.getProduct().getId()}}">
+                            <form method="post" th:action="@{'/delete?id=' + ${item.getProduct().getId()}}">
                                 <button class="btn btn-lg btn-outline-success btn-block" type="submit"
                                         style="width: 80px; height: 30px; font-size: xx-small">DELETE
                                 </button>

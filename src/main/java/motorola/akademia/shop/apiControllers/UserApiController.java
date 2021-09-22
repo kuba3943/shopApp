@@ -1,7 +1,7 @@
 package motorola.akademia.shop.apiControllers;
 
 import lombok.AllArgsConstructor;
-import motorola.akademia.shop.repository.User;
+import motorola.akademia.shop.entities.User;
 import motorola.akademia.shop.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ public class UserApiController {
 
     @PostMapping("/login")
     public ResponseEntity<Boolean> loginToShop(@RequestBody User user) {
-        return ResponseEntity.ok(userService.login(user));
+        return ResponseEntity.ok(userService.login(user.getUsername(), user.getPassword()));
     }
 
     @GetMapping("/loggedUser")

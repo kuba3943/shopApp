@@ -1,22 +1,23 @@
 package motorola.akademia.shop.services;
 
-import motorola.akademia.shop.repository.User;
-import motorola.akademia.shop.repository.UserRole;
+import lombok.AllArgsConstructor;
+import motorola.akademia.shop.entities.User;
+import motorola.akademia.shop.entities.UserRole;
+import motorola.akademia.shop.repositories.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
+@AllArgsConstructor
 public class UserService {
 
     private User loggedUser = new User();
 
-    List<User> users = new ArrayList<>(Arrays.asList(
-            new User ("Jakub", "Domagała", "kuba", "1234",  UserRole.USER),
-            new User ("Admin", "Admin", "admin", "1111",  UserRole.ADMIN))
-    );
+    private final UserRepository userRepository;
 
     public User getLoggedUser() {
         return loggedUser;
@@ -27,19 +28,15 @@ public class UserService {
     }
 
     public List<User> all() {
-        return users;
+        return userRepository.findAll();
     }
 
-    public boolean login(User user){
-        boolean log = false;
-        for (User u : users) {
-            if (u.getUsername().equals(user.getUsername()) && u.getPassword().equals(user.getPassword())){
-                log = true;
-                loggedUser = u;
-                break;
-            }
-        }
-        return log;
+    public boolean login(String username, String password){
+
+        Optional<User> user = userRepository.findByUsernameAndPassword(username, password);
+
+        loggedUser=user.orElseThrow();
+        return true;
     }
 
     public void logout(){
@@ -47,22 +44,14 @@ public class UserService {
     }
 
     public User addNewUser(User user){
-        users.add(user);
+        user.setUserRole(UserRole.USER);
+        userRepository.save(user);
         return user;
     }
 
-    public User emptyUser(){
-        return new User();
-    }
 
     public User findUserByUsernameAndPassword (String username, String password){
-        User user = new User();
-        for (User u : users) {
-            if(u.getUsername().equals(username) && u.getPassword().equals(password)){
-                user = u;
-            }
-        }
-        return user;
+      return userRepository.findByUsernameAndPassword(username, password).orElseThrow(()-> new RuntimeException("No user with that username and password"));
     }
 
 

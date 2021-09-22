@@ -1,38 +1,52 @@
-package motorola.akademia.shop.repository;
+package motorola.akademia.shop.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
-@AllArgsConstructor
+
 @NoArgsConstructor
 @Getter
 @Setter
 @Component
+@Entity
 public class Cart {
 
 
-    private Map<Item, BigDecimal> itemMap;
-//    private List<Item> itemList;
-//    private List<BigDecimal> priceList;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @OneToMany
+    private List<Cart.Item> item;
+
+    public Cart(List<Item> item) {
+        this.item = item;
+    }
 
     @NoArgsConstructor
+    @Entity(name="item")
     public static class Item{
 
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @OneToOne
         private Product product;
         private int quantity;
+        private BigDecimal price;
 
-        public Item(Product product, int quantity) {
+        public Item(Product product, int quantity, BigDecimal price) {
             this.product = product;
             this.quantity = quantity;
+            this.price = price;
         }
 
         public Product getProduct() {
@@ -49,6 +63,14 @@ public class Cart {
 
         public void setQuantity(int quantity) {
             this.quantity = quantity;
+        }
+
+        public BigDecimal getPrice() {
+            return price;
+        }
+
+        public void setPrice(BigDecimal price) {
+            this.price = price;
         }
     }
 }

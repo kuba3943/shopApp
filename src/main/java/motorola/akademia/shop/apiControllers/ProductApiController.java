@@ -1,8 +1,8 @@
 package motorola.akademia.shop.apiControllers;
 
 import lombok.AllArgsConstructor;
-import motorola.akademia.shop.repository.Product;
-import motorola.akademia.shop.repository.User;
+import motorola.akademia.shop.entities.Product;
+import motorola.akademia.shop.entities.User;
 import motorola.akademia.shop.services.ProductListService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ public class ProductApiController {
     }
 
     @GetMapping("/productById")
-    public ResponseEntity<Product> findProductById(@RequestParam int id){
+    public ResponseEntity<Product> findProductById(@RequestParam Long id){
         return ResponseEntity.ok(productListService.productById(id));
     }
 
@@ -42,7 +42,7 @@ public class ProductApiController {
     }
 
     @GetMapping("/deleteProduct")
-    public ResponseEntity<Product> deleteProductById(@RequestParam int id){
+    public ResponseEntity<Product> deleteProductById(@RequestParam Long id){
         return ResponseEntity.ok(productListService.deleteProductById(id));
     }
 

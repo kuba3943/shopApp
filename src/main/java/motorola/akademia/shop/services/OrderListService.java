@@ -1,81 +1,76 @@
 package motorola.akademia.shop.services;
 
-import motorola.akademia.shop.repository.Cart;
-import motorola.akademia.shop.repository.Order;
-import motorola.akademia.shop.repository.User;
+import lombok.AllArgsConstructor;
+import motorola.akademia.shop.entities.Cart;
+import motorola.akademia.shop.entities.Order;
+import motorola.akademia.shop.entities.User;
+import motorola.akademia.shop.repositories.CartRepository;
+import motorola.akademia.shop.repositories.OrderRepository;
+import motorola.akademia.shop.repositories.UserRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Repository
+@Service
+@AllArgsConstructor
 public class OrderListService {
 
-    List<Order> orders = new ArrayList<>();
-    private int id = 1;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final CartRepository cartRepository;
 
     public Order addOrder(Cart cart, User user){
-        Order order = new Order(id,user,cart);
-        id++;
-        orders.add(order);
+        Order order = new Order(user,cart);
+        orderRepository.save(order);
         return order;
     }
 
     public List<Order> all() {
-        return orders;
+        return orderRepository.findAll();
     }
 
     public List<Order> getOrdersByUser (String username){
-        List<Order> ordersByUser = new ArrayList<>();
-        for (Order o : orders) {
-            if (o.getUser().getUsername().equals(username)){
-                ordersByUser.add(o);
-            }
-
-        }
-        return ordersByUser;
+     User user = userRepository.findByUsername(username).orElseThrow(()-> new RuntimeException());
+        return orderRepository.findAllByUser(user);
     }
 
-    public Order getOrdersById (int id){
-        Order order = null;
-        for (Order o : orders) {
-            if (o.getId()==id){
-                order=o;
-            }
-
-        }
-        return order;
+    public Order getOrdersById (Long id){
+     return orderRepository.findById(id).orElseThrow(()->new RuntimeException());
     }
 
     public BigDecimal getTotalPriceFromOrder(Order order){
-            return order.getCart().getItemMap().values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+            return order.getCart().getItem().stream().map(Cart.Item::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal specialOffer20(int id, double reduction){
+
+    public BigDecimal specialOffer20(Long id, double reduction){
 
         Order order = getOrdersById(id);
         BigDecimal totalPrice20 = new BigDecimal(BigInteger.valueOf(0));
-        for (Map.Entry<Cart.Item, BigDecimal> entry : order.getCart().getItemMap().entrySet()) {
-            if (entry.getKey().getQuantity()>=5){
-                totalPrice20=totalPrice20.add(entry.getValue().multiply(BigDecimal.valueOf(reduction)));
-               }else {
-                totalPrice20=totalPrice20.add(entry.getValue());
+        for ( Cart.Item i : order.getCart().getItem()) {
+            if(i.getQuantity()>=5){
+                totalPrice20=totalPrice20.add(i.getPrice().multiply(BigDecimal.valueOf(reduction)));
+            } else {
+                totalPrice20=totalPrice20.add(i.getPrice());
             }
         }
         return totalPrice20;
     }
 
 
-    public List<Order> getAllOrdersWithProduct (int id){
+    public List<Order> getAllOrdersWithProduct (Long id){
         List<Order> ordersWithProduct = new ArrayList<>();
 
-        for (Order o : this.all()) {
-            if (o.getCart().getItemMap().keySet().stream().anyMatch(a -> a.getProduct().getId()==id)){
+        for (Order o : all()) {
+            if (o.getCart().getItem().stream().anyMatch(a -> a.getProduct().getId().equals(id))){
                 ordersWithProduct.add(o);
             }
         }

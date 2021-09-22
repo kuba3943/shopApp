@@ -1,13 +1,18 @@
 package motorola.akademia.shop.controller;
 
 import lombok.AllArgsConstructor;
-import motorola.akademia.shop.repository.*;
+import motorola.akademia.shop.entities.User;
+import motorola.akademia.shop.entities.*;
+import motorola.akademia.shop.repositories.CartRepository;
+import motorola.akademia.shop.repositories.ItemRepository;
+import motorola.akademia.shop.repositories.ProductRepository;
 import motorola.akademia.shop.services.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -15,44 +20,48 @@ import java.util.List;
 @AllArgsConstructor
 public class ViewController {
 
-    private final AdminService adminService;
+    //private final AdminService adminService;
     private final CartService cartService;
     private final OrderListService orderListService;
     private final ProductListService productListService;
     private final UserService userService;
-
+    private final ItemRepository itemRepository;
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
 
 
     @GetMapping("/")
-    public String loginPage (Model model){
-        model.addAttribute("user", userService.emptyUser());
+    public String loginPage(Model model) {
+        model.addAttribute("user", new User());
 
         return "login";
     }
 
     @GetMapping("/logout")
-    public String logout (Model model){
+    public String logout(Model model) {
 
         userService.logout();
         cartService.clearCart();
-        model.addAttribute("user", userService.emptyUser());
+        model.addAttribute("user", new User());
         return "login";
     }
 
     @PostMapping("/login")
-    public String productList (@ModelAttribute User user, Model model){
+    public String productList(@ModelAttribute User user, Model model) {
 
         User user1 = userService.findUserByUsernameAndPassword(user.getUsername(), user.getPassword());
 
-       if (userService.login(user) && user1.getUserRole()==UserRole.USER){
-           return "redirect:products";
-       } else if (userService.login(user) && user1.getUserRole()==UserRole.ADMIN){
-           model.addAttribute("products", productListService.all());
-           return "adminProducts";
-        }else {
-           model.addAttribute("user", userService.emptyUser());
-           return "loginerror";
-       }
+        if (userService.login(user.getUsername(), user.getPassword()) && user1.getUserRole() == UserRole.USER) {
+            return "redirect:products";
+        } else if (userService.login(user.getUsername(), user.getPassword()) && user1.getUserRole() == UserRole.ADMIN) {
+            List<Product> products = productListService.all();
+            products.sort(Comparator.comparingLong(Product::getId));
+            model.addAttribute("products", products);
+            return "adminProducts";
+        } else {
+            model.addAttribute("user", new User());
+            return "loginerror";
+        }
 
     }
 
@@ -69,8 +78,6 @@ public class ViewController {
     @PostMapping("/addUser")
     public String addUser(@ModelAttribute User user, Model model) {
 
-        user.setUserRole(UserRole.USER);
-
         userService.addNewUser(user);
 
         return "/login";
@@ -78,14 +85,13 @@ public class ViewController {
     }
 
 
-
-
-
-
     @GetMapping("/products")
     public String showList(Model model) {
 
-        model.addAttribute("products", productListService.all());
+        List<Product> products = productListService.all();
+        products.sort(Comparator.comparingLong(Product::getId));
+        model.addAttribute("products", products);
+
         model.addAttribute("item", new Cart.Item());
 
         model.addAttribute("categories", Category.values());
@@ -93,7 +99,6 @@ public class ViewController {
 
         return "list";
     }
-
 
 
     @GetMapping("/product_details")
@@ -106,7 +111,7 @@ public class ViewController {
 
 
     @PostMapping("/addToCart")
-    public String addToCart(Model model, @ModelAttribute Cart.Item item, @RequestParam(value = "id") int id) {
+    public String addToCart(Model model, @ModelAttribute Cart.Item item, @RequestParam(value = "id") Long id) {
 
         cartService.addProductToCart(productListService.productById(id), item.getQuantity());
 
@@ -131,12 +136,13 @@ public class ViewController {
     @PostMapping("/orders")
     public String orders(Model model) {
 
-        cartService.specialOffer20(0.8);
+
         Cart cart = new Cart(cartService.all());
-
-
         User user = userService.getLoggedUser();
-        orderListService.addOrder(cart,user);
+
+        User user1 = userService.findUserByUsernameAndPassword(user.getUsername(), user.getPassword());
+        cartService.addCartToDB(cart);
+        orderListService.addOrder(cart, user1);
 
         cartService.clearCart();
 
@@ -149,37 +155,37 @@ public class ViewController {
         User user1 = userService.findUserByUsernameAndPassword(userService.getLoggedUser().getUsername(), userService.getLoggedUser().getPassword());
 
 
-        if (userService.login(user1) && user1.getUserRole()==UserRole.USER){
+        if (userService.login(user1.getUsername(), user1.getPassword()) && user1.getUserRole() == UserRole.USER) {
             model.addAttribute("orders", orderListService.getOrdersByUser(userService.getLoggedUser().getUsername()));
             return "orders";
-        } else if (userService.login(user1) && user1.getUserRole()==UserRole.ADMIN){
+        } else if (userService.login(user1.getUsername(), user1.getPassword()) && user1.getUserRole() == UserRole.ADMIN) {
             model.addAttribute("orders", orderListService.all());
             return "ordersA";
-        }else {
+        } else {
             return "login";
         }
 
     }
 
     @PostMapping("/orderDetails")
-    public String orderDetails(Model model, @RequestParam(value = "id") int id) {
+    public String orderDetails(Model model, @RequestParam(value = "id") Long id) {
 
         model.addAttribute("cart", orderListService.getOrdersById(id).getCart());
         model.addAttribute("products", productListService.allToCart());
-        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id, 0.8));
         model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
 
         return "orderDetails";
     }
 
     @PostMapping("/modify")
-    public String modifyCart(Model model, @RequestParam(value = "id") int id) {
+    public String modifyCart(Model model, @RequestParam(value = "id") Long id) {
 
-        Cart.Item itemToModify=null;
+        Cart.Item itemToModify = null;
 
-        for (Cart.Item item : cartService.all().keySet()) {
-            if (item.getProduct().getId()==id){
-                itemToModify=item;
+        for (Cart.Item item : cartService.all()) {
+            if (item.getProduct().getId().equals(id)) {
+                itemToModify = item;
             }
         }
 
@@ -194,52 +200,61 @@ public class ViewController {
     }
 
     @PostMapping("/delete")
-    public String deleteProductFromCart(Model model, @RequestParam(value = "id") int id) {
+    public String deleteProductFromCart(Model model, @RequestParam(value = "id") Long id) {
 
         cartService.deleteProductFromCart(id);
         return "redirect:cart";
     }
 
     @PostMapping("/modifyProduct")
-    public String modifyProduct(Model model, @RequestParam(value = "id") int id) {
+    public String modifyProduct(Model model, @RequestParam(value = "id") Long id) {
 
-      model.addAttribute("product", productListService.productById(id));
-      model.addAttribute("newProduct", new Product());
+        model.addAttribute("product", productListService.productById(id));
+        model.addAttribute("newProduct", new Product());
 
         return "modifyProduct";
     }
 
     @PostMapping("/updateProduct")
-    public String updateProduct(Model model, @RequestParam(value = "id") int id, @ModelAttribute Product newProduct) {
+    public String updateProduct(Model model, @RequestParam(value = "id") Long id, @ModelAttribute Product newProduct) {
 
         Product productToModify = productListService.productById(id);
 
-        if (newProduct.getPrice()!= null){
-        productToModify.setPrice(newProduct.getPrice());}
+        if (newProduct.getPrice() != null) {
+            productToModify.setPrice(newProduct.getPrice());
+        }
+
+        productRepository.save(productToModify);
 
         List<Order> ordersToUpdate = orderListService.getAllOrdersWithProduct(id);
 
         for (Order o : ordersToUpdate) {
             cartService.updateTotalPriceWhenChangeQuantity(o.getCart());
+            cartRepository.save(o.getCart());
         }
 
-        if (newProduct.getDetails()!=null){
-        productToModify.setDetails(newProduct.getDetails());}
+        if (newProduct.getDetails() != null) {
+            productToModify.setDetails(newProduct.getDetails());
+        }
+        List<Product> products = productListService.all();
+        products.sort(Comparator.comparingLong(Product::getId));
+        model.addAttribute("products", products);
 
-        model.addAttribute("products", productListService.all());
         return "adminProducts";
     }
 
     @GetMapping("/adminProducts")
     public String showListAdmin(Model model) {
 
-        model.addAttribute("products", productListService.all());
+        List<Product> products = productListService.all();
+        products.sort(Comparator.comparingLong(Product::getId));
+        model.addAttribute("products", products);
 
         return "adminProducts";
     }
 
     @PostMapping("/orderDetailsA")
-    public String orderDetailsA(Model model, @RequestParam(value = "id") int id) {
+    public String orderDetailsA(Model model, @RequestParam(value = "id") Long id) {
 
         model.addAttribute("order", orderListService.getOrdersById(id));
         model.addAttribute("item", new Cart.Item());
@@ -247,14 +262,14 @@ public class ViewController {
         model.addAttribute("products", productListService.allToCart());
 
         model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
-        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id, 0.8));
 
         return "orderDetailsAd";
     }
 
 
     @GetMapping("/orderDetailsA")
-    public String getOrderDetailsA(Model model, @RequestParam(value = "id") int id) {
+    public String getOrderDetailsA(Model model, @RequestParam(value = "id") Long id) {
 
         model.addAttribute("order", orderListService.getOrdersById(id));
         model.addAttribute("item", new Cart.Item());
@@ -262,38 +277,43 @@ public class ViewController {
         model.addAttribute("products", productListService.allToCart());
 
         model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(id)));
-        model.addAttribute("totalPrice20", orderListService.specialOffer20(id,0.8));
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(id, 0.8));
 
         return "orderDetailsAd";
     }
 
     @PostMapping("/updateItem/prodid/{prodId}/orderid/{orderId}")
-    public String updateItem(Model model, @ModelAttribute Cart.Item item, @PathVariable int prodId, @PathVariable int orderId) {
+    public String updateItem(Model model, @ModelAttribute Cart.Item item, @PathVariable Long prodId, @PathVariable Long orderId) {
 
-        orderListService.getOrdersById(orderId).getCart().getItemMap().keySet().forEach(i ->{
-            if (i.getProduct().getId()==prodId){
+        orderListService.getOrdersById(orderId).getCart().getItem().forEach(i -> {
+            if (i.getProduct().getId().equals(prodId)) {
                 i.setQuantity(item.getQuantity());
+                itemRepository.save(i);
             }
         });
 
-        cartService.updateTotalPriceWhenChangeQuantity(orderListService.getOrdersById(orderId).getCart());
+        Cart cart = orderListService.getOrdersById(orderId).getCart();
+        cartService.updateTotalPriceWhenChangeQuantity(cart);
+
+        cartRepository.save(cart);
+
 
         model.addAttribute("order", orderListService.getOrdersById(orderId));
         model.addAttribute("item", new Cart.Item());
         model.addAttribute("cart", orderListService.getOrdersById(orderId).getCart());
         model.addAttribute("products", productListService.allToCart());
         model.addAttribute("totalPrice", orderListService.getTotalPriceFromOrder(orderListService.getOrdersById(orderId)));
-        model.addAttribute("totalPrice20", orderListService.specialOffer20(orderId,0.8));
-        return "redirect:http://localhost:8080/orderDetailsA?id=" +orderId ;
+        model.addAttribute("totalPrice20", orderListService.specialOffer20(orderId, 0.8));
+        return "redirect:http://localhost:8080/orderDetailsA?id=" + orderId;
     }
 
     @PostMapping("/sortByCategory")
     public String sortByCategory(Model model, @ModelAttribute Name catName) {
 
 
-        if(catName.getName().equals("ALL")){
+        if (catName.getName().equals("ALL")) {
             model.addAttribute("products", productListService.all());
-        } else{
+        } else {
             model.addAttribute("products", productListService.getProductsByCategory(catName.getName()));
         }
 
@@ -315,28 +335,25 @@ public class ViewController {
     }
 
     @PostMapping("/addProduct")
-    public String addProduct(Model model, @ModelAttribute Product product ) {
-
-        product.setId(productListService.all().stream().mapToInt(a -> a.getId()).max().getAsInt()+1);
+    public String addProduct(Model model, @ModelAttribute Product product) {
 
         productListService.addProduct(product);
 
-        model.addAttribute("products", productListService.all());
+        List<Product> products = productListService.all();
+        products.sort(Comparator.comparingLong(Product::getId));
+        model.addAttribute("products", products);
+
 
         return "adminProducts";
     }
 
     @PostMapping("/deleteProduct")
-    public String deleteProduct(Model model, @RequestParam(value = "id") int id) {
+    public String deleteProduct(Model model, @RequestParam(value = "id") Long id) {
 
-       productListService.deleteProductById(id);
+        productListService.deleteProductById(id);
         model.addAttribute("products", productListService.all());
         return "adminProducts";
     }
-
-
-
-
 
 
 }

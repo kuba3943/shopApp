@@ -2,9 +2,13 @@ package motorola.akademia.shop.services;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import motorola.akademia.shop.repository.Cart;
-import motorola.akademia.shop.repository.Product;
+import motorola.akademia.shop.repositories.CartRepository;
+import motorola.akademia.shop.repositories.ItemRepository;
+import motorola.akademia.shop.repositories.ProductRepository;
+import motorola.akademia.shop.entities.Cart;
+import motorola.akademia.shop.entities.Product;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.math.BigDecimal;
@@ -15,75 +19,97 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository
+@Service
 @AllArgsConstructor
 @SessionScope
 public class CartService {
 
     private final ProductListService productListService;
+    private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final ItemRepository itemRepository;
+    private final Cart cart = new Cart(new ArrayList<>());
 
-    private final Cart cart = new Cart(new HashMap<>());
-
-
-    public Cart addProductToCart(Product product, int quantity){
-        Cart.Item item = new Cart.Item(product,quantity);
+    public Cart addProductToCart(Product product, int quantity) {
         BigDecimal totalItemPrice = new BigDecimal(String.valueOf(productListService.productById(product.getId()).getPrice().multiply(BigDecimal.valueOf(quantity))));
-        cart.getItemMap().put(item,totalItemPrice);
-        return cart;
-    }
 
-    public Cart deleteProductFromCart(int id){
-
-        for (Cart.Item item : cart.getItemMap().keySet()) {
-            if (item.getProduct().getId() == id){
-                cart.getItemMap().remove(item);
-                break;
+        boolean b = false;
+        for (Cart.Item item : cart.getItem()) {
+            if (item.getProduct().getId().equals(product.getId())) {
+                item.setQuantity(item.getQuantity() + quantity);
+                BigDecimal newTotalItemPrice = new BigDecimal(String.valueOf(productListService.productById(product.getId()).getPrice().multiply(BigDecimal.valueOf(item.getQuantity()+quantity))));
+               item.setPrice(newTotalItemPrice);
+                itemRepository.save(item);
+                b = true;
             }
         }
 
+        if (!b) {
+            Cart.Item item = new Cart.Item(product, quantity, totalItemPrice);
+            cart.getItem().add(item);
+            itemRepository.save(item);
+        }
         return cart;
     }
 
-    public Cart changeQuantityOfProduct (int productId, int newQuantity){
+    public Cart deleteProductFromCart(Long id) {
 
-        cart.getItemMap().forEach((k,v) -> {
-            if (k.getProduct().getId()==productId){
-                k.setQuantity(newQuantity);
-            } });
+        for (Cart.Item item : cart.getItem()) {
+            if (item.getProduct().getId() == id) {
+                cart.getItem().remove(item);
+                itemRepository.delete(item);
+                break;
+            }
+        }
         return cart;
     }
 
-    public Cart clearCart(){
-        cart.setItemMap(new HashMap<>());
+    public Cart changeQuantityOfProduct(Long productId, int newQuantity) {
+        for (Cart.Item i : cart.getItem()) {
+            if (i.getProduct().getId() == productId) {
+                i.setQuantity(newQuantity);
+            }
+        }
         return cart;
     }
 
-    public Map<Cart.Item, BigDecimal> all() {
-        return cart.getItemMap();
+    public Cart clearCart() {
+        cart.setItem(new ArrayList<>());
+        return cart;
     }
 
-    public BigDecimal getTotalPriceOfCart(){
-       return cart.getItemMap().values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    public List<Cart.Item> all() {
+        return cart.getItem();
     }
 
-    public BigDecimal specialOffer20(double reduction){
+    public BigDecimal getTotalPriceOfCart() {
+        return cart.getItem().stream().map(Cart.Item::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal specialOffer20(double reduction) {
 
         BigDecimal totalPrice20 = new BigDecimal(BigInteger.valueOf(0));
 
-        for (Map.Entry<Cart.Item, BigDecimal> entry : cart.getItemMap().entrySet()) {
-            if (entry.getKey().getQuantity()>=5){
-                totalPrice20=totalPrice20.add(entry.getValue().multiply(BigDecimal.valueOf(reduction)));
+
+        for (Cart.Item i : cart.getItem()) {
+            if (i.getQuantity() >= 5) {
+                totalPrice20 = totalPrice20.add(i.getPrice().multiply(BigDecimal.valueOf(reduction)));
             } else {
-                totalPrice20=totalPrice20.add(entry.getValue());
+                totalPrice20 = totalPrice20.add(i.getPrice());
             }
         }
         return totalPrice20;
     }
 
 
-    public void updateTotalPriceWhenChangeQuantity(Cart cart){
-        cart.getItemMap().entrySet().stream().forEach(s ->
-            s.setValue(productListService.productById(s.getKey().getProduct().getId()).getPrice().multiply((BigDecimal.valueOf(s.getKey().getQuantity())))));
+    public void updateTotalPriceWhenChangeQuantity(Cart cart) {
+
+        cart.getItem().stream().forEach(s ->
+                s.setPrice(productListService.productById(s.getProduct().getId()).getPrice().multiply((BigDecimal.valueOf(s.getQuantity())))));
+    }
+
+    public void addCartToDB(Cart cart) {
+        cartRepository.save(cart);
     }
 
 

@@ -1,4 +1,4 @@
-package motorola.akademia.shop.repository;
+package motorola.akademia.shop.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

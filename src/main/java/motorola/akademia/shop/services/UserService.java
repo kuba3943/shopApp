@@ -40,7 +40,7 @@ public class UserService {
     }
 
     public void logout(){
-        loggedUser = new User();
+        loggedUser = null;
     }
 
     public User addNewUser(User user){

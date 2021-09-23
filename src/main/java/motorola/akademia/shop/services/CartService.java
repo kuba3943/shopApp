@@ -37,7 +37,7 @@ public class CartService {
         for (Cart.Item item : cart.getItem()) {
             if (item.getProduct().getId().equals(product.getId())) {
                 item.setQuantity(item.getQuantity() + quantity);
-                BigDecimal newTotalItemPrice = new BigDecimal(String.valueOf(productListService.productById(product.getId()).getPrice().multiply(BigDecimal.valueOf(item.getQuantity()+quantity))));
+                BigDecimal newTotalItemPrice = new BigDecimal(String.valueOf(productListService.productById(product.getId()).getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))));
                item.setPrice(newTotalItemPrice);
                 itemRepository.save(item);
                 b = true;

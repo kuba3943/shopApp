@@ -72,5 +72,15 @@ public class Cart {
         public void setPrice(BigDecimal price) {
             this.price = price;
         }
+
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "id=" + id +
+                    ", product=" + product +
+                    ", quantity=" + quantity +
+                    ", price=" + price +
+                    '}';
+        }
     }
 }

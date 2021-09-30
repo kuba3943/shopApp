@@ -18,17 +18,17 @@ public class OrderApiController {
 
     private final OrderListService orderListService;
 
-    @GetMapping("/getAllOrder")
+    @GetMapping("/orders")
     public ResponseEntity<List<Order>> getAllOrders(){
         return ResponseEntity.ok(orderListService.all());
     }
 
-    @GetMapping("/getOrdersByUser/{username}")
+    @GetMapping("/ordersByUser/{username}")
     public ResponseEntity<List<Order>> getOrdersByUser(@PathVariable String username){
         return ResponseEntity.ok(orderListService.getOrdersByUser(username));
     }
 
-    @GetMapping("/getOrderById/{id}")
+    @GetMapping("/orderById/{id}")
     public ResponseEntity<Order> getOrdersByUser(@PathVariable Long id){
         return ResponseEntity.ok(orderListService.getOrdersById(id));
     }

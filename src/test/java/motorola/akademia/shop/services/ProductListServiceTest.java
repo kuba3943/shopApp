@@ -67,7 +67,7 @@ class ProductListServiceTest {
 
         productListService.addProduct(PRODUCT);
         assertEquals(21, productListService.all().size());
-        assertTrue(productListService.productById(21L).getName().equals("noName"));
+        assertEquals("noName", productListService.productById(21L).getName());
     }
 
 }

@@ -16,7 +16,7 @@ public class ProductApiController {
 
     private final ProductListService productListService;
 
-    @GetMapping("/all")
+    @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProduct(){
         return ResponseEntity.ok(productListService.all());
     }
@@ -31,17 +31,17 @@ public class ProductApiController {
         return ResponseEntity.ok(productListService.productById(id));
     }
 
-    @GetMapping("/allByCategory/category/{category}")
+    @GetMapping("/products/category/{category}")
     public ResponseEntity<List<Product>> getAllByCategory(@PathVariable String category){
         return ResponseEntity.ok(productListService.getProductsByCategory(category));
     }
 
-    @PostMapping("/addNewProduct")
+    @PostMapping("/products")
     public ResponseEntity<Product> addNewProduct(@RequestBody Product product) {
         return ResponseEntity.ok(productListService.addProduct(product));
     }
 
-    @GetMapping("/deleteProduct")
+    @DeleteMapping("/products")
     public ResponseEntity<Product> deleteProductById(@RequestParam Long id){
         return ResponseEntity.ok(productListService.deleteProductById(id));
     }

@@ -45,7 +45,6 @@ class CartServiceTest {
     @BeforeEach
     void setNewCart() {
         cart = new Cart(new ArrayList<>());
-
     }
 
     @Test
@@ -60,16 +59,6 @@ class CartServiceTest {
     }
 
     @Test
-    void shouldUpdateQuantityOfItem() {
-        when(productListService.productById(any())).thenReturn(PRODUCT);
-
-        cart = cartService.addProductToCart(PRODUCT, 10);
-        cart = cartService.addProductToCart(PRODUCT, 10);
-
-        assertEquals(20, cart.getItem().get(0).getQuantity());
-    }
-
-    @Test
     void shouldAddSecondItemToCart() {
         when(productListService.productById(any())).thenReturn(PRODUCT);
 
@@ -77,6 +66,16 @@ class CartServiceTest {
         cart = cartService.addProductToCart(new Product(2L, "noName2", BigDecimal.valueOf(2), "kg", Category.FRUITS, "noDetails"), 20);
 
         assertEquals(2, cart.getItem().size());
+    }
+
+    @Test
+    void shouldUpdateQuantityOfItem() {
+        when(productListService.productById(any())).thenReturn(PRODUCT);
+
+        cart = cartService.addProductToCart(PRODUCT, 10);
+        cart = cartService.addProductToCart(PRODUCT, 10);
+
+        assertEquals(20, cart.getItem().get(0).getQuantity());
     }
 
     @Test

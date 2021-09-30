@@ -18,12 +18,12 @@ public class UserApiController {
         return ResponseEntity.ok(userService.login(user.getUsername(), user.getPassword()));
     }
 
-    @GetMapping("/loggedUser")
+    @GetMapping("/user")
     public ResponseEntity<User> getLoggedUser() {
         return ResponseEntity.ok(userService.getLoggedUser());
     }
 
-    @PostMapping("/addNewUser")
+    @PostMapping("/user")
     public ResponseEntity<User> addNewUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.addNewUser(user));
     }

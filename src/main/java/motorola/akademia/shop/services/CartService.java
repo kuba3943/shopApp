@@ -55,7 +55,7 @@ public class CartService {
     public Cart deleteProductFromCart(Long id) {
 
         for (Cart.Item item : cart.getItem()) {
-            if (item.getProduct().getId() == id) {
+            if (item.getProduct().getId().equals(id)) {
                 cart.getItem().remove(item);
                 itemRepository.delete(item);
                 break;
@@ -66,7 +66,7 @@ public class CartService {
 
     public Cart changeQuantityOfProduct(Long productId, int newQuantity) {
         for (Cart.Item i : cart.getItem()) {
-            if (i.getProduct().getId() == productId) {
+            if (i.getProduct().getId().equals(productId)) {
                 i.setQuantity(newQuantity);
             }
         }
@@ -104,7 +104,7 @@ public class CartService {
 
     public void updateTotalPriceWhenChangeQuantity(Cart cart) {
 
-        cart.getItem().stream().forEach(s ->
+        cart.getItem().forEach(s ->
                 s.setPrice(productListService.productById(s.getProduct().getId()).getPrice().multiply((BigDecimal.valueOf(s.getQuantity())))));
     }
 
